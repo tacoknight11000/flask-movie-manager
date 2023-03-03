@@ -6,60 +6,60 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 db = SQLAlchemy(app)
 
-class Todo(db.Model):
+class Mtw(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     mname = db.Column(db.String(200), nullable=False)
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
-        return '<Task %r>' % self.id
+        return '<movie %r>' % self.id
 
 db.create_all()
 
 @app.route('/', methods=['POST', 'GET'])
 def index():
     if request.method == 'POST':
-        task_mname = request.form['content']
-        new_task = Todo(mname=task_mname)
+        movie_mname = request.form['content']
+        new_movie = Mtw(mname=movie_mname)
 
         try:
-            db.session.add(new_task)
+            db.session.add(new_movie)
             db.session.commit()
             return redirect('/')
         except:
-            return 'There was an issue adding your task'
+            return 'There was an issue adding your movie'
 
     else:
-        tasks = Todo.query.order_by(Todo.date_created).all()
-        return render_template('index.html', tasks=tasks)
+        movies = Mtw.query.order_by(Mtw.date_created).all()
+        return render_template('index.html', movies=movies)
 
 
 @app.route('/delete/<int:id>')
 def delete(id):
-    task_to_delete = Todo.query.get_or_404(id)
+    movie_to_delete = Mtw.query.get_or_404(id)
 
     try:
-        db.session.delete(task_to_delete)
+        db.session.delete(movie_to_delete)
         db.session.commit()
         return redirect('/')
     except:
-        return 'There was a problem deleting that task'
+        return 'There was a problem deleting that movie'
 
 @app.route('/update/<int:id>', methods=['GET', 'POST'])
 def update(id):
-    task = Todo.query.get_or_404(id)
+    movie = Mtw.query.get_or_404(id)
 
     if request.method == 'POST':
-        task.mname = request.form['content']
+        movie.mname = request.form['content']
 
         try:
             db.session.commit()
             return redirect('/')
         except:
-            return 'There was an issue updating your task'
+            return 'There was an issue updating your movie'
 
     else:
-        return render_template('update.html', task=task)
+        return render_template('update.html', movie=movie)
 
 
 if __name__ == "__main__":
