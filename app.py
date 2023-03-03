@@ -10,6 +10,7 @@ class Mtw(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     mname = db.Column(db.String(200), nullable=False)
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
+    status = db.Column(db.String(200), nullable=False, default='Unwatched...')
 
     def __repr__(self):
         return '<movie %r>' % self.id
@@ -50,7 +51,7 @@ def update(id):
     movie = Mtw.query.get_or_404(id)
 
     if request.method == 'POST':
-        movie.mname = request.form['content']
+        movie.mname = request.form['mname']
 
         try:
             db.session.commit()
@@ -61,6 +62,27 @@ def update(id):
     else:
         return render_template('update.html', movie=movie)
 
+@app.route('/watched/<int:id>')
+def maw(id):
+    movie_seen = Mtw.query.get_or_404(id)
+
+    try:
+        movie_seen.status = 'Watched!'
+        db.session.commit()
+        return redirect('/')
+    except:
+        return 'There was a problem marking that movie as watched'
+
+@app.route('/unwatched/<int:id>')
+def mau(id):
+    movie_seen = Mtw.query.get_or_404(id)
+
+    try:
+        movie_seen.status = 'Unwatched...'
+        db.session.commit()
+        return redirect('/')
+    except:
+        return 'There was a problem marking that movie as unwatched'
 
 if __name__ == "__main__":
     app.run(debug=True)
